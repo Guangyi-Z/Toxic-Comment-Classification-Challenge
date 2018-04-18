@@ -10,7 +10,7 @@ def tokenize(X):
     for document in X:
         tokenized_doc = []
         for sent in nltk.sent_tokenize(document):
-            tokenized_doc += nltk.word_tokenize(sent)
+            tokenized_doc += nltk.word_tokenize(sent.lower())
         transformed_X.append(tokenized_doc)
     return transformed_X
 
