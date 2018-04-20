@@ -22,7 +22,7 @@ class TfidfEmbeddingVectorizer(object):
 
     def fit(self, X, y):
         # if a word was never seen - it must be at least as infrequent
-        # as any of the known words - so the default idf is the max of 
+        # as any of the known words - so the default idf is the max of
         # known idf's
         max_idf = max(self.idf)
         self.word2weight = defaultdict(
@@ -43,23 +43,31 @@ class TfidfEmbeddingVectorizer(object):
 def grid_search_train(train, test, subm):
     '''
     Arguments:
-    sentences=None, size=100, alpha=0.025, window=5, min_count=5, max_vocab_size=None, 
+    sentences=None, size=100, alpha=0.025, window=5, min_count=5, max_vocab_size=None,
     sample=0.001, seed=1, workers=3, min_alpha=0.0001, sg=0, hs=0, negative=5,
-    cbow_mean=1, hashfxn=<built-in function hash>, iter=5, null_word=0, trim_rule=None, 
+    cbow_mean=1, hashfxn=<built-in function hash>, iter=5, null_word=0, trim_rule=None,
     sorted_vocab=1, batch_words=10000, compute_loss=False, callbacks=()
     '''
     data = preprocess.load()
-    for sg,size,window,min_count,hs,neg,iter,sample in product( [1,0],
-                                                                [100,300],
-                                                                [5,10],
+    for sg,size,window,min_count,hs,neg,iter,sample in product( [0],
+                                                                [300],
+                                                                [5],
                                                                 [1],
-                                                                [0,1],
-                                                                [5,10],
-                                                                [5,25],
-                                                                [0.1,0.01,0.001]):
+                                                                [0],
+                                                                [5],
+                                                                [25],
+                                                                [0.001]):
+    # for sg,size,window,min_count,hs,neg,iter,sample in product( [1,0],
+    #                                                             [100,300],
+    #                                                             [5,10],
+    #                                                             [1],
+    #                                                             [0,1],
+    #                                                             [5,10],
+    #                                                             [5,25],
+    #                                                             [0.1,0.01,0.001]):
         print(time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime()), sg,size,window,min_count,hs,neg,iter,sample)
-        
-        model = gensim.models.word2vec.Word2Vec(data['train_tokens'], 
+
+        model = gensim.models.word2vec.Word2Vec(data['train_tokens'],
                                                 sg=sg, size=size, window=window, min_count=min_count,
                                                 hs=hs, negative=neg, iter=iter, sample=sample)
         model_name = 'sg{0}-sz{1}-win{2}-minc{3}-hs{4}-neg{5}-iter{6}-samp{7}'.format(sg,
@@ -82,12 +90,12 @@ def grid_search_train(train, test, subm):
         submid = pd.DataFrame({'id': subm["id"]})
         submission = pd.concat([submid, pd.DataFrame(preds, columns = label_cols)], axis=1)
         submission.to_csv('submission/submission-toxicw2v-doctfidf-lr-{}.csv'.format(model_name), index=False)
-    
+
 
 if '__main__' == __name__:
     train = pd.read_csv('data/train.csv')
     test = pd.read_csv('data/test.csv')
     subm = pd.read_csv('data/sample_submission.csv')
-    
+
     grid_search_train(train, test, subm)
-    
+
